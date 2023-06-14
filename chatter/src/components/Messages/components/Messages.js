@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import useSound from 'use-sound';
 import config from '../../../config';
@@ -29,7 +29,6 @@ function Messages() {
   const [playReceive] = useSound(config.RECEIVE_AUDIO_URL);
   const { setLatestMessage } = useContext(LatestMessagesContext);
   const listBottomElemRef = useRef();
-  const [currentMessage, setCurrentMessage] = useState('')
   const [botTyping, setBotTyping] = useState(false)
   const [messages, setMessages] = useState([
     {
@@ -66,20 +65,20 @@ function Messages() {
     listBottomElemRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, botTyping]);
 
+  useEffect(() => {
+    console.log('message rendering')
+  })
+
   const appendMessageToList = (user, message) => {
     setMessages(pre => [...pre, { user, message }])
   }
 
-  const sendMessage = () => {
-    socket.emit(BOTTY_EVENTS.USER_MESSAGE, currentMessage);
-    appendMessageToList(MY_USER_ID, currentMessage);
-    setCurrentMessage('');
+  // Using useCallback to about the Footer from being re-rendered on messages' change
+  const sendMessage = useCallback((message) => {
+    socket.emit(BOTTY_EVENTS.USER_MESSAGE, message);
+    appendMessageToList(MY_USER_ID, message);
     playSend();
-  };
-
-  const onChangeMessage = (e) => {
-    setCurrentMessage(e.target.value);
-  };
+  }, []);
 
   return (
     <div className="messages">
@@ -92,11 +91,11 @@ function Messages() {
           botTyping={botTyping}
         />)}
         {botTyping && <TypingMessage />}
-        
+
         {/* Add below empty element for scrolling to bottom */}
         <div id="messages-list-bottom" ref={listBottomElemRef} /> 
       </div>
-      <Footer message={currentMessage} sendMessage={sendMessage} onChangeMessage={onChangeMessage} />
+      <Footer sendMessage={sendMessage} />
     </div>
   );
 }
