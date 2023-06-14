@@ -9,6 +9,8 @@ import Footer from './Footer';
 import Message from './Message';
 import '../styles/_messages.scss';
 import initialBottyMessage from '../../../common/constants/initialBottyMessage';
+import { MY_USER_ID } from '../../UserList/constants/users';
+import MessageListPanel from './MessageListPanel';
 
 const socket = io(
   config.BOT_SERVER_ENDPOINT,
@@ -22,28 +24,20 @@ const BOTTY_EVENTS = {
 }
 
 const BOTTY_USER_ID = 'bot';
-const MY_USER_ID = 'me';
 
 function Messages() {
   const [playSend] = useSound(config.SEND_AUDIO_URL);
   const [playReceive] = useSound(config.RECEIVE_AUDIO_URL);
   const { setLatestMessage } = useContext(LatestMessagesContext);
-  const listBottomElemRef = useRef();
-  const [botTyping, setBotTyping] = useState(false)
-  const [messages, setMessages] = useState([
-    {
-      user: BOTTY_USER_ID,
-      message: initialBottyMessage
-    },
-  ]);
+  const messagePanelRef = useRef()
 
   // Listen to websocket bot-message event
   useEffect(() => {
     const botMessageHandler = (message) => {
-      appendMessageToList(BOTTY_USER_ID, message);
+      addMessageToList(BOTTY_USER_ID, message);
       setLatestMessage(BOTTY_USER_ID, message);
-      setBotTyping(false);
       playReceive();
+      messagePanelRef.current.setTyping(false);
     };
     socket.on(BOTTY_EVENTS.BOT_MESSAGE, botMessageHandler);
 
@@ -53,48 +47,34 @@ function Messages() {
   // Listen to websocket bot-message event
   useEffect(() => {
     const botTypingHandler = () => {
-      setBotTyping(true);
+      messagePanelRef.current.setTyping(true);
     }
     socket.on(BOTTY_EVENTS.BOT_TYPING, botTypingHandler);
 
     return () => socket.removeListener(BOTTY_EVENTS.BOT_TYPING, botTypingHandler);
   }, []);
 
-  // Scroll to bottom when new messages come in or bot is typing.
   useEffect(() => {
-    listBottomElemRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, botTyping]);
-
-  useEffect(() => {
-    console.log('message rendering')
+    console.log('Socket rendering')
+    debugger;
   })
 
-  const appendMessageToList = (user, message) => {
-    setMessages(pre => [...pre, { user, message }])
+  const addMessageToList = (user, message) => {
+    messagePanelRef.current.addMessage(user, message);
   }
 
   // Using useCallback to about the Footer from being re-rendered on messages' change
   const sendMessage = useCallback((message) => {
     socket.emit(BOTTY_EVENTS.USER_MESSAGE, message);
-    appendMessageToList(MY_USER_ID, message);
+    addMessageToList(MY_USER_ID, message);
     playSend();
   }, []);
+
 
   return (
     <div className="messages">
       <Header />
-      <div className="messages__list" id="message-list" >
-        {messages.map((m, i) => <Message
-          key={i}
-          message={{ ...m, id: i }}
-          nextMessage={messages[i + 1]}
-          botTyping={botTyping}
-        />)}
-        {botTyping && <TypingMessage />}
-
-        {/* Add below empty element for scrolling to bottom */}
-        <div id="messages-list-bottom" ref={listBottomElemRef} /> 
-      </div>
+      <MessageListPanel ref={messagePanelRef} />
       <Footer sendMessage={sendMessage} />
     </div>
   );

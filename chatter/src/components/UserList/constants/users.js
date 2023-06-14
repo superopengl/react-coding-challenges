@@ -11,3 +11,5 @@ export default [
   { name: 'Lottie Jordan', userId: 'lottie', isOnline: false, lastActive: 'Jul 23',  color: '#62D5D1', lastMessage: '728 Feeney Street.' },
   { name: 'Augusta Castillo', userId: 'augusta', isOnline: false, lastActive: 'Jul 23',  color: '#82D39F', lastMessage: 'I got the transfer! :D' }
 ];
+
+export const MY_USER_ID = 'me';
