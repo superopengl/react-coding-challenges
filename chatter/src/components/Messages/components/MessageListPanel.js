@@ -39,8 +39,9 @@ const MessageListPanel = memo(forwardRef((props, ref) => {
   const isLastMessage = (index) => {
     const message = messages[index];
     const nextMessage = messages[index + 1];
-    return (!nextMessage && (!botTyping || message.user === MY_USER_ID))
+    const isLast = (!nextMessage && (!botTyping || message.user === MY_USER_ID))
       || (nextMessage && nextMessage.user !== message.user);
+    return !!isLast;
   }
 
   return (
