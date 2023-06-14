@@ -1,18 +1,16 @@
-import React from 'react';
+import React, { memo } from 'react';
 import cx from 'classnames';
+import { MY_USER_ID } from '../../UserList/constants/users';
 
-const ME = 'me';
-
-export default function Message({ nextMessage, message, botTyping }) {
+const Message = memo(({ message, isLast }) => {
   return (
     <p
       className={cx(
         'messages__message',
         'animate__animated animate__rubberBand',
         {
-          'messages__message--me': message.user === ME,
-          'messages__message--last': (!nextMessage && (!botTyping || message.user === ME))
-            || (nextMessage && nextMessage.user !== message.user)
+          'messages__message--me': message.user === MY_USER_ID,
+          'messages__message--last': isLast
         }
       )}
       key={message.id}
@@ -20,4 +18,6 @@ export default function Message({ nextMessage, message, botTyping }) {
       {message.message}
     </p>
   );
-}
+})
+
+export default Message
