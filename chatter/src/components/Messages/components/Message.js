@@ -2,7 +2,6 @@ import React from 'react';
 import cx from 'classnames';
 import { MY_USER_ID } from '../../UserList/constants/users';
 
-
 const Message = React.memo(({ message, isLast }) => {
   return (
     <p
