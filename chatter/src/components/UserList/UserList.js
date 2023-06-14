@@ -1,4 +1,4 @@
-import React, { useContext, memo, useState } from 'react';
+import React, { useContext, memo, useState, useEffect } from 'react';
 import cx from 'classnames';
 import LatestMessagesContext from '../../contexts/LatestMessages/LatestMessages';
 import UserProfile from '../../common/components/UserProfile/UserProfile';
@@ -10,7 +10,7 @@ const User = memo(({ icon, name, lastActive, isOnline, userId, color }) => {
   const [message, setMessage] = useState();
   
   // Only subscribe from the global observable to make sure only the impacted user is re-rendered.
-  React.useEffect(() => {
+  useEffect(() => {
     // Subscribe global latest messages change.
     const sub$ = lastMessageSource$.subscribe(messages => {
       setMessage(messages[userId])

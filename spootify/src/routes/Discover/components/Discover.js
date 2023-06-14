@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import DiscoverBlock from './DiscoverBlock/components/DiscoverBlock';
 import '../styles/_discover.scss';
 import { getCategories$, getFeaturedPlaylists$, getNewReleases$ } from '../../../common/utils/spotifyHttp';
@@ -7,21 +7,21 @@ import { getCategories$, getFeaturedPlaylists$, getNewReleases$ } from '../../..
 
 const Discover = () => {
 
-  const [newReleases, setNewReleases] = React.useState([]);
-  const [playlists, setPlaylists] = React.useState([]);
-  const [categories, setCategories] = React.useState([]);
+  const [newReleases, setNewReleases] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const sub$ = getNewReleases$().subscribe(setNewReleases);
     return () => sub$.unsubscribe();
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     const sub$ = getFeaturedPlaylists$().subscribe(setPlaylists);
     return () => sub$.unsubscribe();
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     const sub$ = getCategories$().subscribe(setCategories);
     return () => sub$.unsubscribe();
   }, [])

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import cx from 'classnames';
 import { MY_USER_ID } from '../../UserList/constants/users';
 
-const Message = React.memo(({ message, isLast }) => {
+const Message = memo(({ message, isLast }) => {
   return (
     <p
       className={cx(

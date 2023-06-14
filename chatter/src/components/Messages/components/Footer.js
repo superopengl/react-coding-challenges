@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, memo } from 'react';
 
 const RETURN_KEY_CODE = 13;
 
-const Footer = React.memo(({ sendMessage }) => {
+const Footer = memo(({ sendMessage }) => {
   const inputElemRef = useRef();
   const [canSend, setCanSend] = useState(false);
 
