@@ -53,8 +53,6 @@ const Messages = memo(() => {
     return () => socket.removeListener(BOTTY_EVENTS.BOT_TYPING, botTypingHandler);
   }, []);
 
-  console.log('Socket rendering')
-
   const addMessageToList = (user, message) => {
     messageListPanelRef.current?.addMessage(user, message);
   }
