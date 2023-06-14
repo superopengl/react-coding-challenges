@@ -1,4 +1,4 @@
-import React, { useState, createContext, useCallback, useMemo, useRef } from 'react';
+import React, { createContext, useCallback, useRef } from 'react';
 import initialMessages from './constants/initialMessages';
 import { BehaviorSubject } from 'rxjs';
 
