@@ -1,6 +1,6 @@
 import { httpGet$, httpPost$ } from "./http"
 import { of } from 'rxjs';
-import { tap, map, switchMap } from 'rxjs/operators';
+import { map, switchMap, share, finalize } from 'rxjs/operators';
 
 const BASE_URL = `https://api.spotify.com/v1/browse`;
 const CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
@@ -8,6 +8,7 @@ const CLIENT_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
 
 let tokenExpireAt = null;
 let currentToken = null;
+let authTokenSource$ = null;
 
 const getAuthToken$ = () => {
   const body = 'grant_type=client_credentials';
@@ -20,29 +21,31 @@ const getAuthToken$ = () => {
 }
 
 const getAccessToken$ = () => {
-  return of(null).pipe(
-    switchMap(() => {
-      if (tokenExpireAt < Date.now()) {
-        return getAuthToken$().pipe(
-          map(({ access_token, expires_in }) => {
-            tokenExpireAt = Date.now() + expires_in * 1000;
-            currentToken = access_token
-            return currentToken;
-          })
-        )
-      }
+  if (!currentToken || tokenExpireAt < Date.now()) {
+    if (!authTokenSource$) {
+      authTokenSource$ = getAuthToken$().pipe(
+        map(({ access_token, expires_in }) => {
+          tokenExpireAt = Date.now() + expires_in * 1000;
+          currentToken = access_token
+          return currentToken;
+        }),
+        finalize(() => authTokenSource$ = null),
+        share()
+      )
+    }
 
-      return of(currentToken);
-    })
-  )
-}
+    return authTokenSource$;
+  }
+  return of(currentToken);
+};
 
 const getHeaders$ = () => {
-  return getAccessToken$().pipe(
-    map(token => ({
-      Authorization: `Bearer ${token}`,
-    }))
-  )
+  return getAccessToken$()
+    .pipe(
+      map(token => ({
+        Authorization: `Bearer ${token}`,
+      }))
+    )
 }
 
 export const getNewReleases$ = () => {
