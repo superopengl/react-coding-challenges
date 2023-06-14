@@ -21,11 +21,12 @@ const getAuthToken$ = () => {
 }
 
 const getAccessToken$ = () => {
-  if (!currentToken || tokenExpireAt < Date.now()) {
+  const now = Date.now();
+  if (!currentToken || tokenExpireAt < now) {
     if (!authTokenSource$) {
       authTokenSource$ = getAuthToken$().pipe(
         map(({ access_token, expires_in }) => {
-          tokenExpireAt = Date.now() + expires_in * 1000;
+          tokenExpireAt = now + expires_in * 1000;
           currentToken = access_token
           return currentToken;
         }),
