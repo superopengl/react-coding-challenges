@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import DiscoverBlock from './DiscoverBlock/components/DiscoverBlock';
 import '../styles/_discover.scss';
-import { getCategories, getFeaturedPlaylists, getNewReleases } from '../../../common/utils/spotifyHttp';
+import { getCategories$, getFeaturedPlaylists$, getNewReleases$ } from '../../../common/utils/spotifyHttp';
 
 
 
@@ -12,24 +12,18 @@ const Discover = () => {
   const [categories, setCategories] = React.useState([]);
 
   React.useEffect(() => {
-    (async () => {
-      const result = await getNewReleases();
-      setNewReleases(result);
-    })();
+    const sub$ = getNewReleases$().subscribe(setNewReleases);
+    return () => sub$.unsubscribe();
   }, [])
 
   React.useEffect(() => {
-    (async () => {
-      const result = await getFeaturedPlaylists();
-      setPlaylists(result);
-    })();
+    const sub$ = getFeaturedPlaylists$().subscribe(setPlaylists);
+    return () => sub$.unsubscribe();
   }, [])
 
   React.useEffect(() => {
-    (async () => {
-      const result = await getCategories();
-      setCategories(result);
-    })();
+    const sub$ = getCategories$().subscribe(setCategories);
+    return () => sub$.unsubscribe();
   }, [])
 
   return (

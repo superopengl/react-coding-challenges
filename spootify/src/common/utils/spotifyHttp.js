@@ -1,4 +1,6 @@
-import { httpGet, httpPost } from "./http"
+import { httpGet$, httpPost$ } from "./http"
+import { of } from 'rxjs';
+import { tap, map, switchMap } from 'rxjs/operators';
 
 const BASE_URL = `https://api.spotify.com/v1/browse`;
 const CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
@@ -7,49 +9,60 @@ const CLIENT_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
 let tokenExpireAt = null;
 let currentToken = null;
 
-const getAuthToken = async () => {
+const getAuthToken$ = () => {
   const body = 'grant_type=client_credentials';
 
   const headers = {
     'Authorization': 'Basic ' + (new Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64')),
     'Content-Type': 'application/x-www-form-urlencoded',
   }
-  const responseBody = await httpPost('https://accounts.spotify.com/api/token', body, headers);
-  return responseBody;
+  return httpPost$('https://accounts.spotify.com/api/token', body, headers);
 }
 
-const getAccessToken = async () => {
-  if(tokenExpireAt < Date.now()) {
-    const {access_token, expires_in} = await getAuthToken();
-    tokenExpireAt = Date.now() + expires_in * 1000;
-    currentToken = access_token
-  }
+const getAccessToken$ = () => {
+  return of(null).pipe(
+    switchMap(() => {
+      if (tokenExpireAt < Date.now()) {
+        return getAuthToken$().pipe(
+          map(({ access_token, expires_in }) => {
+            tokenExpireAt = Date.now() + expires_in * 1000;
+            currentToken = access_token
+            return currentToken;
+          })
+        )
+      }
 
-  return currentToken;
+      return of(currentToken);
+    })
+  )
 }
 
-const getHeaders = async () => {
-  const token = await getAccessToken();
-  return {
-    Authorization: `Bearer ${token}`,
-  }
+const getHeaders$ = () => {
+  return getAccessToken$().pipe(
+    map(token => ({
+      Authorization: `Bearer ${token}`,
+    }))
+  )
 }
 
-export const getNewReleases = async () => {
-  const headers = await getHeaders();
-  const result = await httpGet(`${BASE_URL}/new-releases`, headers);
-  return result.albums.items;
+export const getNewReleases$ = () => {
+  return getHeaders$().pipe(
+    switchMap(headers => httpGet$(`${BASE_URL}/new-releases`, headers)),
+    map(r => r.albums.items)
+  )
 }
 
-export const getFeaturedPlaylists = async () => {
-  const headers = await getHeaders();
-  const result = await  httpGet(`${BASE_URL}/featured-playlists`, headers);
-  return result.playlists.items;
+export const getFeaturedPlaylists$ = () => {
+  return getHeaders$().pipe(
+    switchMap(headers => httpGet$(`${BASE_URL}/featured-playlists`, headers)),
+    map(r => r.playlists.items)
+  )
 }
 
-export const getCategories = async () => {
-  const headers = await getHeaders();
-  const result = await  httpGet(`${BASE_URL}/categories`, headers);
-  return result.categories.items;
+export const getCategories$ = () => {
+  return getHeaders$().pipe(
+    switchMap(headers => httpGet$(`${BASE_URL}/categories`, headers)),
+    map(r => r.categories.items)
+  )
 }
 

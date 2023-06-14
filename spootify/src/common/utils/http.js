@@ -1,29 +1,24 @@
 import * as axios from 'axios';
 import { ajax } from 'rxjs/ajax';
-import { interval, take, lastValueFrom } from 'rxjs';
+import { interval, take, lastValueFrom, map } from 'rxjs';
 
-export const httpGet = async (url, headers = null) => {
-  const result = await lastValueFrom(ajax({
+
+const httpRequest$ = (url, method, headers, body) => {
+  return ajax({
     url,
-    method: 'GET',
+    method,
     crossDomain: true,
-    headers: {
-      ...headers,
-    },
-  }))
-  return result.response;
+    headers,
+    body,
+  }).pipe(
+    map(r => r.response)
+  )
 }
 
-export const httpPost = async (url, body, headers = null) => {
-  const result = await lastValueFrom(ajax({
-    url,
-    method: 'POST',
-    crossDomain: true,
-    headers: {
-      ...headers,
-    },
-    body,
-  }))
+export const httpGet$ = (url, headers = null) => {
+  return httpRequest$(url, 'GET', headers)
+}
 
-  return result.response;
+export const httpPost$ = (url, body, headers = null) => {
+  return httpRequest$(url, 'POST', headers, body);
 }
