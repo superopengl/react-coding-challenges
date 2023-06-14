@@ -7,6 +7,7 @@ const LatestMessagesContext = createContext({});
 export default LatestMessagesContext;
 
 export function LatestMessages({ children }) {
+  // Convert useState to useRef+Observable is to avoid unnecessary child components rerendering when context changes.
   const messagesRef = useRef(new BehaviorSubject(initialMessages));
 
   const setLatestMessage = useCallback((userId, value) => {
@@ -18,7 +19,7 @@ export function LatestMessages({ children }) {
   }, []);
 
   return (
-    <LatestMessagesContext.Provider value={{subject$: messagesRef.current, setLatestMessage}}>
+    <LatestMessagesContext.Provider value={{lastMessageSource$: messagesRef.current, setLatestMessage}}>
       {children}
     </LatestMessagesContext.Provider>
   );

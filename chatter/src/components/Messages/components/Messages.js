@@ -68,7 +68,10 @@ const Messages = memo(() => {
   return (
     <div className="messages">
       <Header />
+      {/* Move chat messages to a child component to avoid add/remove listener on WS frequently */}
       <MessageListPanel ref={messageListPanelRef} />
+
+      {/* Refactored Footer component to avoid it's being rerendered upon message list change */}
       <Footer sendMessage={sendMessage} />
     </div>
   );
