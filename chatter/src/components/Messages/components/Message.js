@@ -3,12 +3,7 @@ import cx from 'classnames';
 import { MY_USER_ID } from '../../UserList/constants/users';
 
 
-const Message = React.memo(({ nextMessage, message, isLast }) => {
-
-  React.useEffect(() => {
-    console.log('message', message.id, message.user, message.message);
-  })
-
+const Message = React.memo(({ message, isLast }) => {
   return (
     <p
       className={cx(

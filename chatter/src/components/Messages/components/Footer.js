@@ -1,14 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 const RETURN_KEY_CODE = 13;
 
 const Footer = React.memo(({ sendMessage }) => {
   const inputElemRef = useRef();
   const [canSend, setCanSend] = useState(false);
-
-  // React.useEffect(() => {
-  //   console.log('footer rendering')
-  // })
 
   const onKeyDown = ({ keyCode }) => {
     if (keyCode !== RETURN_KEY_CODE) { return; }
